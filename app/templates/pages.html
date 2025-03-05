@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>All Pages</h1>
+<h1>Доступные страницы</h1>
 
 {% if current_user.account_type == 1 or current_user.account_type == 2 %}
-    <a href="{{ url_for('add_page') }}" class="button">Add New Page</a>
+    <a href="{{ url_for('add_page') }}" class="button">Добавить страницу</a>
 {% endif %}
 
 <table>
     <thead>
         <tr>
-            <th>Title</th>
-            <th>Actions</th>
+            <th>Название</th>
+            <th>Действие</th>
         </tr>
     </thead>
     <tbody>
@@ -19,14 +19,14 @@
         <tr>
             <td>{{ page.title }}</td>
                 <td>
-                    <a href="{{ url_for('view_page', page_id=page.page_id) }}">View</a>
+                    <a href="{{ url_for('view_page', page_id=page.page_id) }}">Посмотреть</a>
                     {% if current_user.account_type == 1 %}
                         <a href="{{ url_for('delete_page', page_id=page.page_id) }}"
-                            onclick="return confirm('Delete this page?')">Delete</a>
+                            onclick="return confirm('Delete this page?')">Удалить</a>
                     {% endif %}
                     {% if current_user.account_type in [1, 2] %}
-                        <a href="{{ url_for('upload_file', page_id=page.page_id) }}">Upload File</a>
-                        <a href="{{ url_for('page_permissions', page_id=page.page_id) }}">Permissions</a>
+                        <a href="{{ url_for('upload_file', page_id=page.page_id) }}">Загрузить файл</a>
+                        <a href="{{ url_for('page_permissions', page_id=page.page_id) }}">Права доступа</a>
                     {% endif %}
                 </td>
         </tr>
