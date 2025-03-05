@@ -24,7 +24,7 @@ def create_new_page_id(page_collection_obj):
 
 
 def find_user_by_email(email, users_collection):
-    return users_collection.find_one({'email': signup_form.email.data})
+    return users_collection.find_one({'email': email})
 
 
 def have_edit_perm(account_type):
