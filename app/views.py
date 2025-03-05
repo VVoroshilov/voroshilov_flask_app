@@ -46,7 +46,7 @@ def signup():
 def login():
     login_form = LoginForm()
     if login_form.validate_on_submit():
-        user = find_user_by_email(login_form.email.data, users_collection):
+        user = find_user_by_email(login_form.email.data, users_collection)
         if user and check_password_hash(user['password'], login_form.password.data):
             users_collection.update_one(
                 {'_id': user['_id']},
