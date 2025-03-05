@@ -6,6 +6,7 @@ from app.forms.signup_form import SignupForm
 from app.forms.login_form import LoginForm
 from app.utils.utils import find_user_by_email, have_edit_perm, create_new_page_id, create_new_user_id
 from app.classes import user
+from app.classes.user import User
 from app import users_collection, pages_collection, access_collection, grid_fs, login_manager
 from datetime import datetime
 from bson import ObjectId
