@@ -1,23 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Dashboard</h1>
-<p>Welcome, {{ user.user_name }}!</p>
-<p>Your account type: 
+<p>Тип пользователя: 
     {% if user.account_type == 1 %}
-        Administrator
+        Администратор
     {% elif user.account_type == 2 %}
-        Editor
+        Редактор
     {% elif user.account_type == 3 %}
-        Reader
+        Наблюдатель
     {% endif %}
 </p>
 
 <!-- Пример ссылок (добавьте свои) -->
 <ul>
-    <li><a href="{{ url_for('pages') }}">View Pages</a></li>
+    <li><a href="{{ url_for('pages') }}">Посмотреть страницы</a></li>
     {% if user.account_type == 1 %}
-        <li><a href="{{ url_for('users') }}">Manage Users</a></li>
+    <li><a href="{{ url_for('users') }}">Редактировать пользователей</a></li>
     {% endif %}
 </ul>
 {% endblock %}
