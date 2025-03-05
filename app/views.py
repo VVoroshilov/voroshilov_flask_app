@@ -2,7 +2,7 @@ from app import app
 from flask import render_template, request, redirect, url_for
 from flask_login import login_required, login_user, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from forms.signunp_form import SignupForm
+from forms.signup_form import SignupForm
 from forms.login_form import LoginForm
 from utils import find_user_by_email, have_edit_perm, create_new_page_id, create_new_user_id
 from datetime import datetime

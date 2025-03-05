@@ -1,4 +1,3 @@
-import os
 from app import app, db
 from flask_script import Manager, Shell
 
