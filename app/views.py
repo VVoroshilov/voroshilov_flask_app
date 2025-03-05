@@ -4,7 +4,7 @@ from flask_login import login_required, login_user, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.forms.signup_form import SignupForm
 from app.forms.login_form import LoginForm
-from utils import find_user_by_email, have_edit_perm, create_new_page_id, create_new_user_id
+from app.utils.utils import find_user_by_email, have_edit_perm, create_new_page_id, create_new_user_id
 from datetime import datetime
 from bson import ObjectId
 
