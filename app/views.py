@@ -118,7 +118,7 @@ def pages():
     if not have_edit_perm(current_user.account_type):
         return redirect(url_for('dashboard'))
     # Получаем все страницы из MongoDB
-    pages_list = list(pages_col.find())
+    pages_list = list(pages_collection.find())
     return render_template('pages.html', pages=pages_list)
 
 
@@ -179,7 +179,7 @@ def edit_page(page_id):
         return redirect(url_for('pages'))
 
     if request.method == 'POST':
-        pages_col.update_one(
+        pages_collection.update_one(
             {'page_id': int(page_id)},
             {'$set': {
                 'title': request.form.get('title'),
