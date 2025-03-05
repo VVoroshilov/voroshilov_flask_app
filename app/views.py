@@ -95,7 +95,7 @@ def view_page(page_id):
 @app.route('/users')
 @login_required
 def users():
-    if int(current_user.account_type) = 1:
+    if int(current_user.account_type) != 1:
         return redirect(url_for('dashboard'))
     users_list = list(users_col.find())
     return render_template('users.html', users=users_list)
