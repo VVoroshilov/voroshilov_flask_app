@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Manage Permissions</h1>
+
+<h2>Read Access</h2>
+<ul>
+    {% for user_id in read_users %}
+    <li>User #{{ user_id }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Write Access</h2>
+<ul>
+    {% for user_id in write_users %}
+    <li>User #{{ user_id }}</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('edit_permissions', page_id=page_id) }}" class="btn">
+    Edit Permissions
+</a>
+{% endblock %}

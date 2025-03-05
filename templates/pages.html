@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>All Pages</h1>
+
+{% if current_user.account_type == 1 or current_user.account_type == 2 %}
+    <a href="{{ url_for('add_page') }}" class="button">Add New Page</a>
+{% endif %}
+
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for page in pages %}
+        <tr>
+            <td>{{ page.title }}</td>
+                <td>
+                    <a href="{{ url_for('view_page', page_id=page.page_id) }}">View</a>
+                    {% if current_user.account_type == 1 %}
+                        <a href="{{ url_for('delete_page', page_id=page.page_id) }}"
+                            onclick="return confirm('Delete this page?')">Delete</a>
+                    {% endif %}
+                    {% if current_user.account_type in [1, 2] %}
+                        <a href="{{ url_for('upload_file', page_id=page.page_id) }}">Upload File</a>
+                        <a href="{{ url_for('page_permissions', page_id=page.page_id) }}">Permissions</a>
+                    {% endif %}
+                </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
