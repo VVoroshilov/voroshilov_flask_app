@@ -35,7 +35,7 @@ def authenticate():
         return True
     key = request.args.get('key')
     if key:
-        user = users_collection.find_one({'password': key, 'account_type': 4})
+        user = users_collection.find_one({'password': generate_password_hash(key), 'account_type': 4})
         if user:
             return True
     return False
