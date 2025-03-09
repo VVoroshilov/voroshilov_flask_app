@@ -10,7 +10,159 @@ from app.classes.user import User
 from app import users_collection, pages_collection, access_collection, grid_fs, login_manager
 from datetime import datetime
 from bson import ObjectId
+from flask_restful import Api, Resource
+from flask_httpauth import HTTPBasicAuth
+import hashlib
 
+
+
+api = Api(app)
+auth = HTTPBasicAuth()
+
+
+@auth.verify_password
+def verify_password(email, password):
+    user = users_collection.find_one({'email': email, 'account_type': 4})
+    if user:
+        hashed_password = hashlib.md5(password.encode()).hexdigest()
+        if user['password'] == hashed_password:
+            return True
+    return False
+
+
+def authenticate():
+    if auth.current_user():
+        return True
+    key = request.args.get('key')
+    if key:
+        user = users_collection.find_one({'password': key, 'account_type': 4})
+        if user:
+            return True
+    return False
+
+
+class PagesAPI(Resource):
+    def get(self):
+        if not authenticate():
+            return {'error': 'Unauthorized'}, 401
+
+        user = users_collection.find_one({
+            '$or': [
+                {'email': auth.current_user()},
+                {'password': request.args.get('key')}
+            ],
+            'account_type': 4
+        })
+        
+        read_access = access_collection.find({'privilege': 'Read', 'list': user['user_id']})
+        allowed_pages = [access['page_id'] for access in read_access]
+        pages = list(pages_collection.find({'page_id': {'$in': allowed_pages}}))
+        
+        for page in pages:
+            page['_id'] = str(page['_id'])
+        return {'pages': pages}, 200
+
+    def post(self):
+        if not authenticate():
+            return {'error': 'Unauthorized'}, 401
+        
+        user = users_collection.find_one({
+            '$or': [
+                {'email': auth.current_user()},
+                {'password': request.args.get('key')}
+            ],
+            'account_type': 4
+        })
+        
+        data = request.get_json()
+        new_page = {
+            'page_id': create_new_page_id(pages_collection),
+            'owner_id': user['user_id'],
+            'title': data['title'],
+            'body': data['body'],
+            'created_at': datetime.now(),
+            'files': []
+        }
+        pages_collection.insert_one(new_page)
+        
+        access_collection.insert_one({
+            'page_id': new_page['page_id'],
+            'privilege': 'Write',
+            'list': [user['user_id']]
+        })
+        
+        return {'message': 'Page created', 'page_id': new_page['page_id']}, 201
+
+class PageAPI(Resource):
+    def get(self, page_id):
+        if not authenticate():
+            return {'error': 'Unauthorized'}, 401
+        
+        user = users_collection.find_one({
+            '$or': [
+                {'email': auth.current_user()},
+                {'password': request.args.get('key')}
+            ],
+            'account_type': 4
+        })
+        
+        if not access_collection.find_one({'page_id': page_id, 'privilege': 'Read', 'list': user['user_id']}):
+            return {'error': 'Forbidden'}, 403
+        
+        page = pages_collection.find_one({'page_id': page_id})
+        if not page:
+            return {'error': 'Not found'}, 404
+        
+        page['_id'] = str(page['_id'])
+        return page, 200
+
+    def put(self, page_id):
+        if not authenticate():
+            return {'error': 'Unauthorized'}, 401
+        
+        user = users_collection.find_one({
+            '$or': [
+                {'email': auth.current_user()},
+                {'password': request.args.get('key')}
+            ],
+            'account_type': 4
+        })
+        
+        if not access_collection.find_one({'page_id': page_id, 'privilege': 'Write', 'list': user['user_id']}):
+            return {'error': 'Forbidden'}, 403
+        
+        data = request.get_json()
+        pages_collection.update_one(
+            {'page_id': page_id},
+            {'$set': {
+                'title': data['title'],
+                'body': data['body'],
+                'updated_at': datetime.now()
+            }}
+        )
+        return {'message': 'Page updated'}, 200
+
+    def delete(self, page_id):
+        if not authenticate():
+            return {'error': 'Unauthorized'}, 401
+        
+        user = users_collection.find_one({
+            '$or': [
+                {'email': auth.current_user()},
+                {'password': request.args.get('key')}
+            ],
+            'account_type': 4
+        })
+        
+        if not access_collection.find_one({'page_id': page_id, 'privilege': 'Write', 'list': user['user_id']}):
+            return {'error': 'Forbidden'}, 403
+        
+        pages_collection.delete_one({'page_id': page_id})
+        access_collection.delete_many({'page_id': page_id})
+        return {'message': 'Page deleted'}, 200
+
+api.add_resource(PagesAPI, '/api/pages')
+api.add_resource(PageAPI, '/api/pages/<int:page_id>')
 
 
 @app.route('/')
@@ -114,10 +266,10 @@ def logout():
 @app.route('/pages')
 @login_required
 def pages():
-    # Проверка прав доступа (только администратор/редактор)
+    # Проверка прав доступа
     if not have_edit_perm(current_user.account_type):
         return redirect(url_for('dashboard'))
-    # Получаем все страницы из MongoDB
+    # Временное решенение, т.к. сохраняем в оперативку.
     pages_list = list(pages_collection.find())
     return render_template('pages.html', pages=pages_list)
 
