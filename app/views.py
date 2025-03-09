@@ -24,7 +24,7 @@ auth = HTTPBasicAuth()
 def verify_password(email, password):
     user = users_collection.find_one({'email': email, 'account_type': 4})
     if user:
-        hashed_password = hashlib.md5(password.encode()).hexdigest()
+        hashed_password = generate_password_hash(password)
         if user['password'] == hashed_password:
             return True
     return False
