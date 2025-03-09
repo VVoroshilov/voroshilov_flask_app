@@ -24,7 +24,7 @@ auth = HTTPBasicAuth()
 def verify_password(email, password):
     user = users_collection.find_one({'email': email, 'account_type': 4})
     if user:
-        hashed_password = generate_password_hash(password)
+        hashed_password = hashlib.md5(password.encode()).hexdigest()
         if user['password'] == hashed_password:
             return True
     return False
@@ -35,7 +35,7 @@ def authenticate():
         return True
     key = request.args.get('key')
     if key:
-        user = users_collection.find_one({'password': generate_password_hash(key), 'account_type': 4})
+        user = users_collection.find_one({'password': hashlib.md5(key.encode()).hexdigest(), 'account_type': 4})
         if user:
             return True
     return False
@@ -177,7 +177,7 @@ def signup():
         if find_user_by_email(signup_form.email.data, users_collection):
             return redirect(url_for('signup'))
 
-        hashed_password = generate_password_hash(signup_form.password.data)
+        hashed_password = hashlib.md5(signup_form.password.data.encode()).hexdigest()
         new_user_id = create_new_user_id(users_collection)
         new_user_obj = {
             'user_id': new_user_id,
